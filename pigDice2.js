@@ -5,15 +5,33 @@
 // If the roll's result is 1, the turn's total is reset and the
 function Game() {
   this.playerOneTurn = true;
+  this.runningTotal = 0;
 }
 
-Game.prototype.rollDice = function () {
-  console.log(Math.ceil((Math.random() * 6)));
+Game.prototype.rollDice = function (player) {
+  var result = (Math.ceil((Math.random() * 6)));
+  console.log("die: ", result);
+  if (result === 1) {
+    this.endTurn(player);
+    this.runningTotal = 0;
+  } else {
+    this.runningTotal += result;
+    console.log("Running total ", this.runningTotal)
+  }
 }
-// Game.prototype.checkForWin = function () {
 
-// }
-Game.prototype.endTurn = function () {
+Game.prototype.checkForWin = function (firstPlayer, secondPlayer) {
+  if (firstPlayer.totalScore >= 25) {
+    return firstPlayer;
+  }
+  if (secondPlayer.totalScore >= 25) {
+    return secondPlayer;
+  }
+}
+
+Game.prototype.endTurn = function (player) {
+  player.totalScore += this.runningTotal;
+  console.log("Player1: ", player.totalScore);
   this.playerOneTurn = !this.playerOneTurn;
 }
 
@@ -37,10 +55,12 @@ $(document).ready(function () {
   $("#player1Score").text(player1.totalScore);
   $("#player2Score").text(player2.totalScore);
   $("#roll").click(function () {
-    game.rollDice();
+    game.rollDice(player1);
+    $("#player1Score").text(player1.totalScore);
+    $("#player2Score").text(player2.totalScore);
   });
   $("#hold").click(function () {
-    game.hold();
+    game.endTurn(player1);
   })
 
 })
